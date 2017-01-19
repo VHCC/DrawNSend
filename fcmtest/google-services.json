@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "200355827640",
+    "firebase_url": "https://jaredtest-425bb.firebaseio.com",
+    "project_id": "jaredtest-425bb",
+    "storage_bucket": "jaredtest-425bb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:200355827640:android:dc353b5b7aabbce1",
+        "android_client_info": {
+          "package_name": "com.ichen.user.fcmtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "200355827640-v8smuujfomtvc2j33j8kokm0r8dkllad.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ichen.user.fcmtest",
+            "certificate_hash": "E6E87055D07CC05C91522EB2846C47DCC9DB2AEA"
+          }
+        },
+        {
+          "client_id": "200355827640-97kglusbnd3d5k2ntpftvata730laflm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMjBc88u97kPx-m4dIgCwQOQv0RKMc2Fg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "200355827640-97kglusbnd3d5k2ntpftvata730laflm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
