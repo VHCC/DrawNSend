@@ -1,1 +1,1 @@
-include ':app', ':DrawViewTest'
+include ':app', ':DrawViewTest', ':fcmtest'

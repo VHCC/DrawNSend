@@ -1,6 +1,7 @@
 package com.ichen.user.fcmtest;
 
 import android.app.Application;
+import android.util.Log;
 
 /**
  * Created by Ichen on 2017/1/19.

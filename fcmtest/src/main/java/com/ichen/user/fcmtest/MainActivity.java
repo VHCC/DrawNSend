@@ -1,19 +1,19 @@
 package com.ichen.user.fcmtest;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
+import com.ichen.user.fcmtest.utils.FireBaseAgent;
+import com.ichen.user.fcmtest.utils.LogManager;
 
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = this.getClass().getSimpleName();
+    //private static final LogManager Log = new LogManager(true);
+    private final String TAG = getClass().getSimpleName() + "@" + Integer.toHexString(hashCode());
 
     /*DB Block*/
     private FirebaseDatabase database;
@@ -25,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText newEditText;
     private Button addButton;
 
+    /*Listener Block*/
+    private OnFireBaseAgentListener mOnFireBaseAgentListener = new OnFireBaseAgentListener();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
         initID();
         initView();
         initFirebaseDB();
-        startAuth();
     }
 
     private void initID() {
@@ -91,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                auth.signOut();
-                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
+                FireBaseAgent.getInstance().logOut();
             }
         });
 
@@ -146,36 +147,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
-                Log.w("TAG:", "Failed to read value.", error.toException());
+                Log.w(TAG, "Failed to read value." + error.toException());
             }
         });
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
-
-        auth.addAuthStateListener(authStateListener);
-
-        Intent intent = getIntent();
-        String msg = intent.getStringExtra("msg");
-        if (msg != null) {
-            Log.d(TAG, "msg:" + msg);
-        }
     }
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
+        FireBaseAgent.getInstance().setOnAfterSignInListener(mOnFireBaseAgentListener);
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (authStateListener != null) {
-            auth.removeAuthStateListener(authStateListener);
-        }
+        FireBaseAgent.getInstance().setOnAfterSignInListener(null);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -191,24 +184,24 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Life Cycle Line
      */
-    private FirebaseAuth auth;
-    private FirebaseAuth.AuthStateListener authStateListener;
-
     private final int REQUEST_LOGIN = 0;
 
-    private void startAuth() {
-        auth = FirebaseAuth.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user == null || !user.isEmailVerified()) {
-                    startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
-                } else {
-                    // TODO after login
-                }
-            }
-        };
+    private class OnFireBaseAgentListener implements FireBaseAgent.OnAfterSignInActionListener {
+
+        @Override
+        public void onLogoutSuccess() {
+            startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
+        }
+
+        @Override
+        public void onUnLogin() {
+            startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
+        }
+
+        @Override
+        public void onLoginValidate() {
+            //TODO Login Check
+        }
     }
 
 }
