@@ -1,1 +1,1 @@
-include ':app', ':DrawViewTest', ':fcmtest'
+include ':app', ':DrawViewTest', ':fcmtest', ':facebooklogin', ':googlelogin', ':startanimation', ':appinstruction', ':slidingtutorial'
