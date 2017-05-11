@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import com.ichen.user.viewpagertest.home.HomeFragment;
 import com.ichen.user.viewpagertest.page.Page1Fragment;
 import com.ichen.user.viewpagertest.page.Page2Fragment;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setPageTransformer(false, new FadePageTransformer());
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.addOnPageChangeListener(mSectionsPagerAdapter);
     }
@@ -51,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
         /* Declare Variable */
         public final int PAGE_HOME = 0;
         public final int PAGE_1 = 1;
-        public final int PAGE_2= 2;
+        public final int PAGE_2 = 2;
         public final int PAGE_3 = 3;
 
-        private final int[] PAGE_GROUP = new int[] {
+        private final int[] PAGE_GROUP = new int[]{
                 PAGE_HOME, PAGE_1, PAGE_2, PAGE_3
         };
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     HomeFragment homeFragment = HomeFragment.newInstance(3000);
                     homeFragment.setIHomeFragmentListener(new HomeFragment.IHomeFragmentListener() {
                         public void onShowEnd() {
-                            mViewPager.setCurrentItem(PAGE_1,false);
+                            mViewPager.setCurrentItem(PAGE_1, true);
                         }
                     });
                     fragment = homeFragment;
@@ -127,4 +129,23 @@ public class MainActivity extends AppCompatActivity {
             return "SECTION " + position;
         }
     }
+
+    public class FadePageTransformer implements ViewPager.PageTransformer {
+        @Override
+        public void transformPage(View view, float position) {
+            if (position <= -1.0F || position >= 1.0F) {
+                view.setTranslationX(view.getWidth() * position);
+                view.setAlpha(0.0F);
+            } else if (position == 0.0F) {
+                view.setTranslationX(view.getWidth() * position);
+                view.setAlpha(1.0F);
+            } else {
+                // position is between -1.0F & 0.0F OR 0.0F & 1.0F
+                view.setTranslationX(view.getWidth() * -position);
+                view.setAlpha(1.0F - Math.abs(position));
+            }
+        }
+    }
+
+
 }
