@@ -1,18 +1,31 @@
 package com.ichen.user.fcmtest;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.util.Pair;
 import android.view.View;
-import android.widget.*;
-import com.google.firebase.database.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.ichen.user.fcmtest.utils.APIAgent;
 import com.ichen.user.fcmtest.utils.FireBaseAgent;
 import com.ichen.user.fcmtest.utils.LogManager;
 
 
 public class MainActivity extends AppCompatActivity {
-    //private static final LogManager Log = new LogManager(true);
+    private static final LogManager Log = new LogManager(true);
     private final String TAG = getClass().getSimpleName() + "@" + Integer.toHexString(hashCode());
 
     /*DB Block*/
@@ -25,8 +38,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText newEditText;
     private Button addButton;
 
+    private Button startPushButton;
+
     /*Listener Block*/
     private OnFireBaseAgentListener mOnFireBaseAgentListener = new OnFireBaseAgentListener();
+    private OnClickListener mOnClickListener = new OnClickListener();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
         // Add items via the Button and EditText at the bottom of the window.
         newEditText = (EditText) findViewById(R.id.todoText);
         addButton = (Button) findViewById(R.id.addButton);
-
+        startPushButton = (Button) findViewById(R.id.startPushButton);
+        startPushButton.setOnClickListener(mOnClickListener);
     }
 
     private void initView() {
@@ -97,6 +114,58 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+        super.onResume();
+        FireBaseAgent.getInstance().setOnAfterSignInListener(mOnFireBaseAgentListener);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FireBaseAgent.getInstance().setOnAfterSignInListener(null);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_LOGIN:
+                if (resultCode != RESULT_OK) {
+                    finish();
+                }
+                break;
+        }
+    }
+
+    /**
+     * ********************Life Cycle Line********************
+     */
+    private final int REQUEST_LOGIN = 0;
+
+    private class OnFireBaseAgentListener implements FireBaseAgent.OnAfterSignInActionListener {
+
+        @Override
+        public void onLogoutSuccess() {
+            startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
+        }
+
+        @Override
+        public void onUnLogin() {
+            startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
+        }
+
+        @Override
+        public void onLoginValidate() {
+            //TODO Login Check
+        }
     }
 
     private void initFirebaseDB() {
@@ -152,55 +221,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
+    private class OnClickListener implements View.OnClickListener {
 
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-        super.onResume();
-        FireBaseAgent.getInstance().setOnAfterSignInListener(mOnFireBaseAgentListener);
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        FireBaseAgent.getInstance().setOnAfterSignInListener(null);
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_LOGIN:
-                if (resultCode != RESULT_OK) {
-                    finish();
+        @Override
+        public void onClick(View view) {
+            switch(view.getId()) {
+                case R.id.startPushButton: {
+                    new APIAgent.PushTask().execute(new Pair<Context, String>(getBaseContext(), "Manfred"));
                 }
                 break;
-        }
-    }
-
-    /**
-     * Life Cycle Line
-     */
-    private final int REQUEST_LOGIN = 0;
-
-    private class OnFireBaseAgentListener implements FireBaseAgent.OnAfterSignInActionListener {
-
-        @Override
-        public void onLogoutSuccess() {
-            startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
-        }
-
-        @Override
-        public void onUnLogin() {
-            startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), REQUEST_LOGIN);
-        }
-
-        @Override
-        public void onLoginValidate() {
-            //TODO Login Check
+            }
         }
     }
 
